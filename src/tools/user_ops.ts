@@ -63,7 +63,7 @@ export function registerUserOpsTools(server: McpServer): void {
       description:
         'Look up the numeric idSite for a given 12-char hex installation_identifier (the portalId printed on the GX device). Endpoint: POST /users/{idUser}/get-site-id.',
       inputSchema: {
-        installation_identifier: z.string().min(4).max(64).describe('Site identifier (e.g. `c0619ab27f32`).'),
+        installation_identifier: z.string().min(4).max(64).describe('Site identifier (12-char hex from the GX device sticker, e.g. `aabbccddeeff`).'),
         idUser: idUserSchema.optional().describe('User ID. Defaults to the caller.'),
       },
       outputSchema: outputSchemas.siteIdLookup,
@@ -128,7 +128,7 @@ export function registerUserOpsTools(server: McpServer): void {
       description:
         'Link a VRM installation (by identifier) to the user account. An email is sent when done. DESTRUCTIVE: modifies account membership. Endpoint: POST /users/{idUser}/addsite.',
       inputSchema: {
-        installation_identifier: z.string().min(4).max(64).describe('Site identifier (e.g. `c0619ab27f32`).'),
+        installation_identifier: z.string().min(4).max(64).describe('Site identifier (12-char hex from the GX device sticker, e.g. `aabbccddeeff`).'),
         idUser: idUserSchema.optional().describe('User ID. Defaults to the caller.'),
         confirm: confirmSchema,
       },
