@@ -132,7 +132,9 @@ describe('formatVrmError — error-body redaction', () => {
   it('extracts error_code and errors string, drops rest', () => {
     const err = new VrmApiError(403, { success: false, errors: 'You lack rights', error_code: 'forbidden' });
     const r = formatVrmError(err);
-    expect(r.content[0].text).toBe('VRM API error 403: forbidden: You lack rights');
+    // 403s now include a hint about vrm_capabilities; verify both parts are present.
+    expect(r.content[0].text).toMatch(/^VRM API error 403: forbidden: You lack rights/);
+    expect(r.content[0].text).toMatch(/vrm_capabilities/);
   });
 
   it('includes Retry-After on 429', () => {

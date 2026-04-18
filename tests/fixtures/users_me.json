@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "user": {
+    "id": 22,
+    "name": "demo demo",
+    "email": "demo@victronenergy.com",
+    "country": "The Netherlands",
+    "idAccessToken": null,
+    "accessLevel": 0
+  }
+}

@@ -142,12 +142,15 @@ const TOOLS: ToolSpec[] = [
   { name: 'vrm_admin_search_download', destructive: false, minimalArgs: {} },
   { name: 'vrm_list_firmwares', destructive: false, minimalArgs: { feedChannel: 'release', victronConnectVersion: '6.0.0' } },
   { name: 'vrm_installation_overview_download', destructive: false, minimalArgs: {} },
-  { name: 'vrm_add_system', destructive: true, minimalArgs: { body: { name: 'x' } } },
+  { name: 'vrm_add_system', destructive: true, minimalArgs: { description: 'Test', favorite: 0, devices: [{ serial: 'H123', productId: '0xC00A', instance: 0 }] } },
+
+  // Capabilities probe (1)
+  { name: 'vrm_capabilities', destructive: false, minimalArgs: {} },
 ];
 
 describe('Tool catalog', () => {
   it('TOOLS array length equals advertised count (sanity check)', () => {
-    expect(TOOLS.length).toBe(52);
+    expect(TOOLS.length).toBe(53);
     const names = new Set(TOOLS.map((t) => t.name));
     expect(names.size).toBe(TOOLS.length);
   });

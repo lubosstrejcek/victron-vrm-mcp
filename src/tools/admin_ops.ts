@@ -30,23 +30,38 @@ export function registerAdminOpsTools(server: McpServer): void {
     {
       title: 'List VRM data-attribute definitions',
       description:
-        'Catalog of all VRM data attributes (codes, descriptions, units). Reference/documentation lookup. Endpoint: GET /data-attributes.',
+        'Catalog of all VRM data attributes (codes, descriptions, units). Supports `page` and `count` for pagination. Endpoint: GET /data-attributes.',
       inputSchema: {
+        page: z.number().int().min(1).max(10_000).optional().describe('Result page (1-indexed).'),
+        count: z.number().int().min(1).max(1000).optional().describe('Records per page (1-1000).'),
         query: passthroughQuerySchema,
       },
       outputSchema: outputSchemas.successWithRecords,
       annotations: READ_ONLY_ANNOTATIONS,
     },
-    async ({ query }, extra) => {
+    async ({ page, count, query }, extra) => {
       const auth = resolveAuth(extra);
       if (!auth.ok) {
         return auth.error;
       }
       try {
-        const data = await auth.client.get<GenericResponse>('/data-attributes', query as Record<string, QueryValue | undefined> | undefined);
+        const q: Record<string, QueryValue | undefined> = {};
+        if (page !== undefined) q.page = page;
+        if (count !== undefined) q.count = count;
+        if (query) {
+          for (const [k, v] of Object.entries(query)) {
+            q[k] = v as QueryValue;
+          }
+        }
+        const data = await auth.client.get<GenericResponse>('/data-attributes', q);
         const records = (data as { records?: unknown[] }).records ?? [];
+        const lines = [
+          `# Data attributes`,
+          '',
+          `${Array.isArray(records) ? records.length : 0} record(s)${page !== undefined ? ` on page ${page}` : ''}.`,
+        ];
         return {
-          content: [{ type: 'text', text: `# Data attributes\n\n${Array.isArray(records) ? records.length : 0} records.` }],
+          content: [{ type: 'text', text: lines.join('\n') }],
           structuredContent: data as unknown as Record<string, unknown>,
         };
       } catch (error) {
@@ -194,19 +209,38 @@ export function registerAdminOpsTools(server: McpServer): void {
   server.registerTool(
     'vrm_add_system',
     {
-      title: 'Register a new system (admin-only)',
+      title: 'Register a VictronConnect system (admin / dealer)',
       description:
-        '⚠️ ADMIN-ONLY. Register a new system in VRM. DESTRUCTIVE: creates persistent state. Endpoint: POST /systems/add-system.',
+        '⚠️ ADMIN / DEALER ONLY. Register a new VictronConnect System in VRM with one or more devices (serial + productId + instance per device). DESTRUCTIVE: creates persistent state. Endpoint: POST /systems/add-system.',
       inputSchema: {
-        body: z
-          .record(z.string(), z.unknown())
-          .describe('Body object for the new system. Refer to VRM docs for required fields.'),
+        description: z.string().min(1).max(256).describe('System name (e.g. "System 1").'),
+        favorite: z.union([z.literal(0), z.literal(1)]).describe('1 to mark as favorite, 0 otherwise.'),
+        devices: z
+          .array(
+            z.object({
+              serial: z.string().min(1).max(64).describe('Device serial (e.g. "H1233455").'),
+              productId: z
+                .string()
+                .min(1)
+                .max(16)
+                .regex(/^(0x[0-9A-Fa-f]+|[0-9]+)$/)
+                .describe('Product ID, hex with 0x prefix (e.g. "0xC00A") or decimal.'),
+              instance: z.number().int().min(0).max(255).describe('Device instance number.'),
+              customName: z.string().max(128).optional().describe('Optional custom display name.'),
+              updatedAt: z.number().int().min(0).optional().describe('Unix timestamp (seconds) of last device update.'),
+            }),
+          )
+          .min(1)
+          .max(256)
+          .describe('At least one device.'),
+        timezone: z.string().min(1).max(64).optional().describe('IANA timezone (e.g. "Europe/Amsterdam").'),
+        updatedAt: z.number().int().min(0).optional().describe('Unix timestamp (seconds) of last system-level update.'),
         confirm: confirmSchema,
       },
       outputSchema: outputSchemas.success,
       annotations: WRITE_ANNOTATIONS,
     },
-    async ({ body, confirm }, extra) => {
+    async ({ description, favorite, devices, timezone, updatedAt, confirm }, extra) => {
       const gate = requireConfirm(confirm, 'vrm_add_system', extra);
       if (gate) {
         return gate;
@@ -216,9 +250,12 @@ export function registerAdminOpsTools(server: McpServer): void {
         return auth.error;
       }
       try {
+        const body: Record<string, unknown> = { description, favorite, devices };
+        if (timezone !== undefined) body.timezone = timezone;
+        if (updatedAt !== undefined) body.updatedAt = updatedAt;
         const data = await auth.client.post<GenericResponse>('/systems/add-system', body);
         return {
-          content: [{ type: 'text', text: `# /systems/add-system\n\nsuccess: ${data.success}` }],
+          content: [{ type: 'text', text: `# Added system "${description}" with ${devices.length} device(s)\n\nsuccess: ${data.success}` }],
           structuredContent: data as unknown as Record<string, unknown>,
         };
       } catch (error) {

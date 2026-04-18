@@ -152,11 +152,17 @@ function redactErrorBody(body: unknown): string {
   return '(no detail)';
 }
 
-export function formatVrmError(error: unknown): ReturnType<typeof errorResult> {
+export function formatVrmError(error: unknown, opts?: { hint?: string }): ReturnType<typeof errorResult> {
   if (error instanceof VrmApiError) {
     const retry =
       error.retryAfterSeconds !== undefined ? ` (retry after ${error.retryAfterSeconds}s)` : '';
-    return errorResult(`VRM API error ${error.status}${retry}: ${redactErrorBody(error.body)}`);
+    let hint = opts?.hint ?? '';
+    // Add a default hint for 403s on admin/system endpoints — these require
+    // a VRM-account-level admin role that most personal access tokens lack.
+    if (error.status === 403 && !hint) {
+      hint = ' Check your VRM access level via vrm_capabilities; admin endpoints require an admin-tier account.';
+    }
+    return errorResult(`VRM API error ${error.status}${retry}: ${redactErrorBody(error.body)}${hint}`);
   }
   return errorResult(error instanceof Error ? error.message : String(error));
 }

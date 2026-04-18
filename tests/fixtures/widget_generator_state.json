@@ -1,0 +1,46 @@
+{
+  "success": true,
+  "records": {
+    "data": {},
+    "enums": {
+      "520": {
+        "0": "Stopped",
+        "1": "Manual start",
+        "2": "Test run",
+        "3": "Loss of communication",
+        "4": "State of Charge",
+        "5": "AC Load",
+        "6": "Battery current",
+        "7": "Battery voltage",
+        "8": "Inverter high temp",
+        "9": "Inverter overload",
+        "10": "Stop on AC-1"
+      }
+    },
+    "sort": {
+      "520": {
+        "0": 0,
+        "1": 1,
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "10": 10
+      }
+    },
+    "meta": {
+      "520": {
+        "code": "gaRC",
+        "description": "Generator run reason",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      }
+    },
+    "buckets": {}
+  }
+}

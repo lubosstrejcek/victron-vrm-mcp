@@ -1,0 +1,120 @@
+{
+  "success": true,
+  "records": {
+    "data": {
+      "hasOldData": false,
+      "secondsAgo": {
+        "value": 0,
+        "valueFormattedWithUnit": "0s"
+      }
+    },
+    "meta": {
+      "203": {
+        "code": "pV1",
+        "description": "L1 Voltage",
+        "formatValueOnly": "%.1F",
+        "formatWithUnit": "%.1F V",
+        "axisGroup": "AC Voltage"
+      },
+      "204": {
+        "code": "pI1",
+        "description": "L1 Current",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F A",
+        "axisGroup": null
+      },
+      "205": {
+        "code": "pP1",
+        "description": "L1 Power",
+        "formatValueOnly": "%.0F",
+        "formatWithUnit": "%.0F W",
+        "axisGroup": null
+      },
+      "206": {
+        "code": "pE1",
+        "description": "L1 Energy",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F kWh",
+        "axisGroup": null
+      },
+      "207": {
+        "code": "pV2",
+        "description": "L2 Voltage",
+        "formatValueOnly": "%.1F",
+        "formatWithUnit": "%.1F V",
+        "axisGroup": "AC Voltage"
+      },
+      "208": {
+        "code": "pI2",
+        "description": "L2 Current",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F A",
+        "axisGroup": null
+      },
+      "209": {
+        "code": "pP2",
+        "description": "L2 Power",
+        "formatValueOnly": "%.0F",
+        "formatWithUnit": "%.0F W",
+        "axisGroup": null
+      },
+      "210": {
+        "code": "pE2",
+        "description": "L2 Energy",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F kWh",
+        "axisGroup": null
+      },
+      "211": {
+        "code": "pV3",
+        "description": "L3 Voltage",
+        "formatValueOnly": "%.1F",
+        "formatWithUnit": "%.1F V",
+        "axisGroup": "AC Voltage"
+      },
+      "212": {
+        "code": "pI3",
+        "description": "L3 Current",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F A",
+        "axisGroup": null
+      },
+      "213": {
+        "code": "pP3",
+        "description": "L3 Power",
+        "formatValueOnly": "%.0F",
+        "formatWithUnit": "%.0F W",
+        "axisGroup": null
+      },
+      "214": {
+        "code": "pE3",
+        "description": "L3 Energy",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F kWh",
+        "axisGroup": null
+      },
+      "246": {
+        "code": "pS",
+        "description": "Status",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      }
+    },
+    "attributeOrder": [
+      246,
+      203,
+      207,
+      211,
+      204,
+      208,
+      212,
+      205,
+      209,
+      213,
+      206,
+      210,
+      214
+    ]
+  }
+}

@@ -1,7 +1,12 @@
+import { createRateLimiter, keyForToken, type RateLimiter } from '../rate_limit.js';
+
 const VRM_BASE_URL = 'https://vrmapi.victronenergy.com/v2';
 const VRM_ALLOWED_HOST = 'vrmapi.victronenergy.com';
 
 export type VrmAuthScheme = 'Token' | 'Bearer';
+
+// Process-wide default limiter. Tests can pass their own via createVrmClient.
+const defaultLimiter: RateLimiter = createRateLimiter();
 
 export interface VrmErrorBody {
   success: false;
@@ -46,10 +51,20 @@ async function vrmRequest<T>(
   path: string,
   token: string,
   scheme: VrmAuthScheme,
+  limiter: RateLimiter,
   opts?: { query?: Record<string, QueryValue | undefined>; body?: unknown },
 ): Promise<T> {
   if (!path.startsWith('/')) {
     throw new Error(`VRM path must start with '/': ${path}`);
+  }
+
+  const decision = limiter.consume(keyForToken(token));
+  if (!decision.allowed) {
+    throw new VrmApiError(
+      429,
+      { errors: 'Local rate limit reached (per-token); back off to respect VRM 200-window / 3-req-per-sec.', error_code: 'rate_limited_local' },
+      decision.retryAfterSeconds,
+    );
   }
 
   const url = new URL(VRM_BASE_URL + path);
@@ -110,10 +125,19 @@ async function vrmDownload(
   path: string,
   token: string,
   scheme: VrmAuthScheme,
+  limiter: RateLimiter,
   body?: unknown,
 ): Promise<VrmDownload> {
   if (!path.startsWith('/')) {
     throw new Error(`VRM path must start with '/': ${path}`);
+  }
+  const decision = limiter.consume(keyForToken(token));
+  if (!decision.allowed) {
+    throw new VrmApiError(
+      429,
+      { errors: 'Local rate limit reached (per-token).', error_code: 'rate_limited_local' },
+      decision.retryAfterSeconds,
+    );
   }
   const url = new URL(VRM_BASE_URL + path);
   if (url.protocol !== 'https:' || url.host !== VRM_ALLOWED_HOST) {
@@ -149,16 +173,20 @@ async function vrmDownload(
   };
 }
 
-export function createVrmClient(token: string, scheme: VrmAuthScheme = 'Token'): VrmClient {
+export function createVrmClient(
+  token: string,
+  scheme: VrmAuthScheme = 'Token',
+  limiter: RateLimiter = defaultLimiter,
+): VrmClient {
   if (!token || token.length < 16) {
     throw new Error('VRM token is missing or implausibly short.');
   }
   return {
-    get: (path, query) => vrmRequest('GET', path, token, scheme, { query }),
-    post: (path, body) => vrmRequest('POST', path, token, scheme, { body }),
-    postDownload: (path, body) => vrmDownload(path, token, scheme, body),
-    put: (path, body) => vrmRequest('PUT', path, token, scheme, { body }),
-    patch: (path, body) => vrmRequest('PATCH', path, token, scheme, { body }),
-    delete: (path, body) => vrmRequest('DELETE', path, token, scheme, { body }),
+    get: (path, query) => vrmRequest('GET', path, token, scheme, limiter, { query }),
+    post: (path, body) => vrmRequest('POST', path, token, scheme, limiter, { body }),
+    postDownload: (path, body) => vrmDownload(path, token, scheme, limiter, body),
+    put: (path, body) => vrmRequest('PUT', path, token, scheme, limiter, { body }),
+    patch: (path, body) => vrmRequest('PATCH', path, token, scheme, limiter, { body }),
+    delete: (path, body) => vrmRequest('DELETE', path, token, scheme, limiter, { body }),
   };
 }

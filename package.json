@@ -1,6 +1,6 @@
 {
   "name": "victron-vrm-mcp",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "MCP server for Victron Energy VRM cloud API — remote, HTTPS, Connector-compatible",
   "type": "module",
   "main": "dist/index.js",
@@ -14,10 +14,15 @@
   ],
   "scripts": {
     "build": "tsc",
+    "build:worker": "tsc --noEmit",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
     "test": "npm run build && vitest run",
-    "test:unit": "vitest run tests/helpers.test.ts tests/client.test.ts tests/logger.test.ts"
+    "test:unit": "vitest run tests/helpers.test.ts tests/client.test.ts tests/logger.test.ts tests/rate_limit.test.ts tests/http_guards.test.ts",
+    "test:live": "npm run build && vitest run tests/live.test.ts",
+    "inspect": "npx -y @modelcontextprotocol/inspector",
+    "worker:dev": "wrangler dev",
+    "worker:deploy": "wrangler deploy"
   },
   "keywords": [
     "victron",

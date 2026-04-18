@@ -1,0 +1,144 @@
+{
+  "success": true,
+  "records": {
+    "devices": [
+      {
+        "name": "Gateway",
+        "customName": null,
+        "productCode": "C00A",
+        "idSite": 151734,
+        "productName": "Cerbo GX",
+        "firmwareVersion": "v3.72",
+        "remoteOnLan": "10.230.13.130",
+        "autoUpdate": "On",
+        "updateTo": "Official release",
+        "lastConnection": 1776515873,
+        "class": "device-gateway device-icon-cerbo-gx",
+        "loggingInterval": 60,
+        "vrt": 0,
+        "identifier": null,
+        "lastPowerUpOrRestart": 1774923378,
+        "vrm": 2,
+        "guiV2Status": "Online",
+        "vncSshAuth": true,
+        "vncStatus": "Enabled",
+        "vncPort": 0,
+        "remoteSupportEnabled": true,
+        "remoteSupportPort": 26318,
+        "remoteSupportIp": "84.22.107.120",
+        "remoteSupport": "enabled_online",
+        "settings": []
+      },
+      {
+        "name": "VE.Bus System",
+        "customName": "",
+        "productCode": "2600",
+        "idSite": 151734,
+        "productName": "MultiPlus 12/3000/120-50",
+        "firmwareVersion": "2600482",
+        "lastConnection": 1776515873,
+        "class": "device-ve-bus device-icon-multiplus-12-3000-120-50",
+        "productId": "2600",
+        "vmc": "VE.Bus",
+        "vid": {
+          "enumValue": "Single unit",
+          "devicesPerPhase": {
+            "L1": 1,
+            "L2": 0,
+            "L3": 0
+          }
+        },
+        "instance": 257,
+        "idDeviceType": 1,
+        "settings": []
+      },
+      {
+        "name": "Battery Monitor",
+        "customName": "",
+        "productCode": "a389",
+        "idSite": 151734,
+        "productName": "SmartShunt 500A",
+        "firmwareVersion": "v3.11",
+        "lastConnection": 1776515873,
+        "class": "device-battery-monitor device-icon-smartshunt-500a",
+        "instance": 288,
+        "idDeviceType": 2,
+        "settings": []
+      },
+      {
+        "name": "Solar Charger",
+        "customName": "",
+        "productCode": "a057",
+        "idSite": 151734,
+        "productName": "SmartSolar Charger MPPT 100/50",
+        "firmwareVersion": "v1.57",
+        "lastConnection": 1776515873,
+        "class": "device-solar-charger device-icon-smartsolar-charger-mppt-100-50",
+        "instance": 256,
+        "idDeviceType": 4,
+        "settings": []
+      },
+      {
+        "name": "Tank",
+        "customName": "Fresh water tank",
+        "productCode": "a161",
+        "idSite": 151734,
+        "productName": "Tank sensor (Built-in)",
+        "lastConnection": 1776515873,
+        "class": "device-fluid-monitor device-icon-tank-sensor--built-in-",
+        "instance": 20,
+        "idDeviceType": 5,
+        "settings": []
+      },
+      {
+        "name": "Tank",
+        "customName": "Diesel tank",
+        "productCode": "a161",
+        "idSite": 151734,
+        "productName": "Tank sensor (Built-in)",
+        "lastConnection": 1776515873,
+        "class": "device-fluid-monitor device-icon-tank-sensor--built-in-",
+        "instance": 21,
+        "idDeviceType": 5,
+        "settings": []
+      },
+      {
+        "name": "Temperature sensor",
+        "customName": "Freezer",
+        "productCode": "a162",
+        "idSite": 151734,
+        "productName": "Generic Temperature Input",
+        "lastConnection": 1776515873,
+        "class": "device-temperature-sensor device-icon-generic-temperature-input",
+        "instance": 24,
+        "idDeviceType": 17,
+        "settings": []
+      },
+      {
+        "name": "Temperature sensor",
+        "customName": "Water tank temperature",
+        "productCode": "a162",
+        "idSite": 151734,
+        "productName": "Generic Temperature Input",
+        "lastConnection": 1776515873,
+        "class": "device-temperature-sensor device-icon-generic-temperature-input",
+        "instance": 25,
+        "idDeviceType": 17,
+        "settings": []
+      },
+      {
+        "name": "DC System",
+        "customName": "DC system",
+        "productCode": "a381",
+        "idSite": 151734,
+        "productName": "BMV-712 Smart",
+        "firmwareVersion": "v4.08",
+        "lastConnection": 1776515873,
+        "class": "device-dc-system device-icon-bmv-712-smart",
+        "instance": 40,
+        "idDeviceType": 29,
+        "settings": []
+      }
+    ]
+  }
+}

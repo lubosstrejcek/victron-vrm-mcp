@@ -361,6 +361,26 @@ The server is **stateless** — each MCP request carries its own VRM token. A fr
 
 ---
 
+## Debugging
+
+The [MCP Inspector](https://modelcontextprotocol.io/docs/tools/inspector) is the fastest way to poke at the server interactively.
+
+```bash
+# Terminal 1 — start the server
+npm run build && npm start
+# (or: PORT=3000 npx victron-vrm-mcp)
+
+# Terminal 2 — launch the Inspector UI
+npm run inspect
+# Then in the UI:
+#   Transport:  Streamable HTTP
+#   URL:        http://127.0.0.1:3000/mcp
+#   Headers:    Authorization: Bearer <your-vrm-token>
+#               x-vrm-auth-scheme: Token   (or Bearer for /auth/loginAsDemo tokens)
+```
+
+Logs go to **stderr** as one-line JSON (the Streamable HTTP transport doesn't capture stderr through to clients — see the spec's [debugging guide](https://modelcontextprotocol.io/docs/tools/debugging)). For client-visible diagnostics, the spec offers `notifications/message` (planned for a future release).
+
 ## Testing
 
 208 tests across 8 files, runs in ~2 seconds:

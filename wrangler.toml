@@ -1,0 +1,23 @@
+name = "victron-vrm-mcp"
+main = "src/worker.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Build TypeScript with Wrangler's built-in bundler.
+[build]
+command = "npm run build:worker"
+
+# Per-environment vars / secrets:
+#   wrangler secret put VRM_ALLOWED_SITES
+#   wrangler secret put ALLOWED_ORIGINS
+# (or use [vars] for non-secret config)
+
+[vars]
+MCP_PATH = "/mcp"
+VRM_AUTH_SCHEME = "Token"
+# ALLOWED_ORIGINS = "https://claude.ai,https://app.example.com"
+# VRM_ALLOWED_SITES = "151734,151755"
+
+# Observability
+[observability]
+enabled = true

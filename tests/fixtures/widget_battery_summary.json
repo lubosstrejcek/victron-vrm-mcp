@@ -1,0 +1,216 @@
+{
+  "success": true,
+  "records": {
+    "data": {
+      "hasOldData": false,
+      "secondsAgo": {
+        "value": 0,
+        "valueFormattedWithUnit": "0s"
+      }
+    },
+    "meta": {
+      "47": {
+        "code": "V",
+        "description": "Voltage",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F V",
+        "axisGroup": "Battery Voltage"
+      },
+      "48": {
+        "code": "VS",
+        "description": "Starter battery voltage",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F V",
+        "axisGroup": null
+      },
+      "49": {
+        "code": "I",
+        "description": "Current",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F A",
+        "axisGroup": "Battery Current"
+      },
+      "50": {
+        "code": "CE",
+        "description": "Consumed Amphours",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F Ah",
+        "axisGroup": null
+      },
+      "51": {
+        "code": "SOC",
+        "description": "State of charge",
+        "formatValueOnly": "%.1F",
+        "formatWithUnit": "%.1F %%",
+        "axisGroup": "Percentage"
+      },
+      "52": {
+        "code": "TTG",
+        "description": "Time to go",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F h",
+        "axisGroup": null
+      },
+      "54": {
+        "code": "Relay",
+        "description": "Relay status",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "115": {
+        "code": "BT",
+        "description": "Battery temperature",
+        "formatValueOnly": "%.0F",
+        "formatWithUnit": "%.0F °C",
+        "axisGroup": null
+      },
+      "116": {
+        "code": "VM",
+        "description": "Mid-point voltage of the battery bank",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F V",
+        "axisGroup": "Battery Voltage"
+      },
+      "117": {
+        "code": "VMD",
+        "description": "Mid-point deviation of the battery bank",
+        "formatValueOnly": "%.1F",
+        "formatWithUnit": "%.1F %%",
+        "axisGroup": "Percentage"
+      },
+      "119": {
+        "code": "AL",
+        "description": "Low voltage alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "120": {
+        "code": "AH",
+        "description": "High voltage alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "121": {
+        "code": "ALS",
+        "description": "Low starter-voltage alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "122": {
+        "code": "AHS",
+        "description": "High starter-voltage alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "123": {
+        "code": "ASoc",
+        "description": "Low state-of-charge alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "124": {
+        "code": "ALT",
+        "description": "Low battery temperature alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "125": {
+        "code": "AHT",
+        "description": "High battery temperature alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "126": {
+        "code": "AM",
+        "description": "Mid-voltage alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "155": {
+        "code": "ALF",
+        "description": "Low fused-voltage alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "156": {
+        "code": "AHF",
+        "description": "High fused-voltage alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "157": {
+        "code": "AFB",
+        "description": "Fuse blown alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "158": {
+        "code": "AHIT",
+        "description": "High internal-temperature alarm",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      },
+      "173": {
+        "code": "mcV",
+        "description": "Minimum cell voltage",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F V",
+        "axisGroup": null
+      },
+      "174": {
+        "code": "McV",
+        "description": "Maximum cell voltage",
+        "formatValueOnly": "%.2F",
+        "formatWithUnit": "%.2F V",
+        "axisGroup": null
+      },
+      "182": {
+        "code": "eRelay",
+        "description": "IO; external relay",
+        "formatValueOnly": "%s",
+        "formatWithUnit": "%s",
+        "axisGroup": null
+      }
+    },
+    "attributeOrder": [
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      155,
+      156,
+      157,
+      158,
+      47,
+      49,
+      50,
+      51,
+      52,
+      48,
+      115,
+      116,
+      117,
+      54,
+      182,
+      173,
+      174
+    ]
+  }
+}

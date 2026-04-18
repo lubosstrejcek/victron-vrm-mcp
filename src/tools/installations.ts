@@ -69,6 +69,7 @@ export function registerInstallationsTools(server: McpServer): void {
         return {
           content: [{ type: 'text', text: lines.join('\n') }],
           structuredContent: {
+            success: installations.success,
             user: me.user,
             records: installations.records,
           },
