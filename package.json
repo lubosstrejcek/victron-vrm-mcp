@@ -16,7 +16,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/index.js",
-    "test": "vitest run"
+    "test": "npm run build && vitest run",
+    "test:unit": "vitest run tests/helpers.test.ts tests/client.test.ts tests/logger.test.ts"
   },
   "keywords": [
     "victron",

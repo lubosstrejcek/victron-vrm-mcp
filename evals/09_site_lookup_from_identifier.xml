@@ -1,0 +1,16 @@
+<eval id="09_site_lookup_from_identifier">
+  <question>I have a GX device with portal ID c0619ab27f32 — what's the VRM idSite for it, and show me the current system overview.</question>
+
+  <expected_tools>
+    <call name="vrm_get_site_id" args='{"installation_identifier": "c0619ab27f32"}' />
+    <call name="vrm_get_system_overview" args='{"idSite": "&lt;from previous call&gt;"}' />
+  </expected_tools>
+
+  <expected_behavior>
+    - Uses vrm_get_site_id first (not vrm_list_installations then scan — the dedicated resolver is more efficient).
+    - Threads the returned site_id into vrm_get_system_overview as an integer.
+    - Reports both the resolved idSite and the overview in the final answer.
+  </expected_behavior>
+
+  <safety>Read-only.</safety>
+</eval>

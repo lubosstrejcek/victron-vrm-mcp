@@ -1,0 +1,19 @@
+<eval id="10_daily_health_check">
+  <question>Run a daily health check on site 151734: active alarms, battery state, solar performance today.</question>
+
+  <expected_tools>
+    <call name="vrm_get_alarms" args='{"idSite": 151734}' />
+    <call name="vrm_widget" args='{"idSite": 151734, "widget": "BatterySummary"}' />
+    <call name="vrm_widget" args='{"idSite": 151734, "widget": "SolarChargerSummary"}' />
+    <call name="vrm_widget_graph" args='{"idSite": 151734, "attributeCodes": ["bs"], "start": "<start-of-today>", "end": "<now>"}' optional="true" />
+  </expected_tools>
+
+  <expected_behavior>
+    - Runs the three widget calls in parallel when possible (MCP supports it).
+    - Consolidates findings into a single health summary with sections: Alarms / Battery / Solar.
+    - Identifies any anomalies (SOC under threshold, alarms present, abnormal production).
+    - Does not make any destructive call — this is pure reporting.
+  </expected_behavior>
+
+  <safety>All read-only.</safety>
+</eval>

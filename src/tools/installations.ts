@@ -1,13 +1,8 @@
+import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { createVrmClient, VrmApiError, type VrmAuthScheme } from '../vrm/client.js';
 import type { VrmUserResponse, VrmInstallationsResponse } from '../vrm/types.js';
-
-const READ_ONLY_ANNOTATIONS = {
-  readOnlyHint: true,
-  destructiveHint: false,
-  idempotentHint: true,
-  openWorldHint: true,
-} as const;
+import { READ_ONLY_ANNOTATIONS, formatVrmError, resolveAuth } from './helpers.js';
+import { outputSchemas } from './output_schemas.js';
 
 export function registerInstallationsTools(server: McpServer): void {
   server.registerTool(
@@ -15,39 +10,48 @@ export function registerInstallationsTools(server: McpServer): void {
     {
       title: 'List VRM installations',
       description:
-        'List all VRM installations (sites) accessible to the authenticated user. Each record includes idSite, name, identifier, owner/admin flags, and optional metadata. Calls /users/me then /users/{idUser}/installations.',
-      inputSchema: {},
+        'List all VRM installations (sites) accessible to the authenticated user. Calls /users/me then /users/{idUser}/installations. Returns idSite, name, identifier, owner/admin flags, and metadata for each site.',
+      inputSchema: {
+        limit: z
+          .number()
+          .int()
+          .min(1)
+          .max(500)
+          .optional()
+          .describe('Max number of sites to render in markdown (default 100). Full list always returned in structuredContent.'),
+      },
+      outputSchema: outputSchemas.installations,
       annotations: READ_ONLY_ANNOTATIONS,
     },
-    async (_args, extra) => {
-      const token = extra.authInfo?.token;
-      if (!token) {
-        return {
-          isError: true,
-          content: [
-            { type: 'text', text: 'Unauthorized: missing VRM token. Pass `Authorization: Bearer <vrm-token>` on the MCP request.' },
-          ],
-        };
+    async ({ limit }, extra) => {
+      const auth = resolveAuth(extra);
+      if (!auth.ok) {
+        return auth.error;
       }
 
-      const scheme = (extra.authInfo?.extra?.['vrmScheme'] as VrmAuthScheme | undefined) ?? 'Token';
-      const client = createVrmClient(token, scheme);
-
       try {
-        const me = await client.get<VrmUserResponse>('/users/me');
-        const installations = await client.get<VrmInstallationsResponse>(
-          `/users/${me.user.id}/installations`,
+        const me = await auth.client.get<VrmUserResponse>('/users/me');
+        const userId = Number(me.user.id);
+        if (!Number.isInteger(userId) || userId <= 0) {
+          return formatVrmError(new Error(`Invalid userId from /users/me: ${me.user.id}`));
+        }
+
+        const installations = await auth.client.get<VrmInstallationsResponse>(
+          `/users/${encodeURIComponent(String(userId))}/installations`,
           { extended: 1 },
         );
 
+        const cap = limit ?? 100;
+        const shown = installations.records.slice(0, cap);
+        const truncated = installations.records.length > shown.length;
         const lines: string[] = [
           `# VRM installations for ${me.user.name} (${me.user.email})`,
           '',
-          `Found ${installations.records.length} site(s).`,
+          `Found ${installations.records.length} site(s)${truncated ? ` — showing first ${shown.length}` : ''}.`,
           '',
         ];
 
-        for (const site of installations.records) {
+        for (const site of shown) {
           lines.push(`## ${site.name}`);
           lines.push(`- **idSite**: \`${site.idSite}\``);
           lines.push(`- **identifier**: \`${site.identifier}\``);
@@ -70,18 +74,7 @@ export function registerInstallationsTools(server: McpServer): void {
           },
         };
       } catch (error) {
-        if (error instanceof VrmApiError) {
-          const retry = error.retryAfterSeconds !== undefined ? ` (retry after ${error.retryAfterSeconds}s)` : '';
-          return {
-            isError: true,
-            content: [{ type: 'text', text: `VRM API error ${error.status}${retry}: ${JSON.stringify(error.body)}` }],
-          };
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return {
-          isError: true,
-          content: [{ type: 'text', text: `Unexpected error: ${message}` }],
-        };
+        return formatVrmError(error);
       }
     },
   );

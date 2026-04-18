@@ -3,5 +3,21 @@ dist/
 *.log
 .env
 .env.local
+.env.*
+!.env.example
 .DS_Store
 coverage/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Agent / tooling workspaces
+.claude/
+.aider*
+.cursor/
+
+# OS
+Thumbs.db

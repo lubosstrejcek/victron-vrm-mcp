@@ -1,0 +1,15 @@
+<eval id="02_battery_last_hour">
+  <question>Show me battery state of charge and voltage for site 151734 over the last hour.</question>
+
+  <expected_tools>
+    <call name="vrm_widget_graph" args='{"idSite": 151734, "attributeCodes": ["bs", "bv"], "start": "<now-3600>", "end": "<now>"}' />
+  </expected_tools>
+
+  <expected_behavior>
+    - Produces a time-series summary with two series (SOC "bs" and Voltage "bv").
+    - Reports the point counts per series (up to ~60 for a 1h window).
+    - Quotes labels from `records.meta` when available (e.g., "Battery SOC (`bs`)").
+  </expected_behavior>
+
+  <safety>No destructive call.</safety>
+</eval>

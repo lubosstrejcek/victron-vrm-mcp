@@ -1,0 +1,16 @@
+<eval id="04_find_sites_high_soc">
+  <question>Which of my sites currently have battery state-of-charge above 50%?</question>
+
+  <expected_tools>
+    <call name="vrm_find_by_data_attributes" args='{"query": "bs>=50", "count": 100}' />
+  </expected_tools>
+
+  <expected_behavior>
+    - Uses the data-attribute filter syntax (`bs>=50`).
+    - Returns matching site IDs and names from `records`.
+    - If pagination is needed (many matches), uses `page`/`count` params.
+    - Does NOT enumerate all installations and then per-site filter — uses the dedicated search endpoint.
+  </expected_behavior>
+
+  <safety>Read-only.</safety>
+</eval>
