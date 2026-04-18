@@ -35,7 +35,24 @@ You can use **both** simultaneously — they serve different use cases.
 
 Unlike `victron-tcp`, this package is a **server you self-host**, not a process your client spawns. You run it once, put HTTPS in front of it, and connect MCP clients to its URL.
 
-### Run from source
+### Run from npm (recommended)
+
+```bash
+# one-off (no install)
+npx victron-vrm-mcp
+
+# or install globally
+npm install -g victron-vrm-mcp
+victron-vrm-mcp
+
+# or pin in a project
+npm install victron-vrm-mcp
+npx victron-vrm-mcp
+```
+
+Listens on `http://127.0.0.1:3000/mcp` by default. Configure with env vars (`PORT`, `HOST`, `ALLOWED_ORIGINS`, `VRM_ALLOWED_SITES`, `VRM_AUTH_SCHEME`) — see `.env.example`.
+
+### Run from source (development)
 
 ```bash
 git clone https://github.com/lubosstrejcek/victron-vrm-mcp.git
@@ -45,7 +62,17 @@ npm run build
 npm start
 ```
 
-Listens on `http://127.0.0.1:3000/mcp` by default.
+Same default bind (`http://127.0.0.1:3000/mcp`).
+
+### Docker
+
+A Dockerfile is on the roadmap. For now, a minimal one-liner you can adapt:
+
+```bash
+docker run --rm -it -p 3000:3000 -e HOST=0.0.0.0 \
+  -e ALLOWED_ORIGINS="https://claude.ai" \
+  node:22-alpine sh -c "npx -y victron-vrm-mcp"
+```
 
 ### Public HTTPS (recommended)
 
