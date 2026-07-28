@@ -1,0 +1,84 @@
+# CLAUDE.md
+
+Guidance for Claude Code working in this repository.
+
+## What this is
+
+MCP server for Victron Energy's **VRM cloud API**, exposing 52 tools over **Streamable HTTP**. v0.4.0.
+
+It is the **cloud half of a pair** — the local/LAN half is [`victron-tcp`](https://github.com/lubosstrejcek/victron-tcp) (stdio, Modbus TCP + MQTT, works offline, ~50 ms). This one needs internet, works away from the house, and inherits VRM's **~15 min sampling latency**. Choose accordingly before adding a tool here: anything needing real-time data belongs in `victron-tcp`.
+
+## Two deployment targets from one codebase
+
+| Target | Entry | Run |
+|---|---|---|
+| **stdio** (local subprocess) | `src/index.ts` → `dist/index.js` | `npm start`, bin `victron-vrm-mcp` |
+| **Cloudflare Worker** (remote HTTP) | `src/worker.ts` | `npm run worker:dev` / `worker:deploy` |
+
+`wrangler.toml` sets `MCP_PATH=/mcp`, `VRM_AUTH_SCHEME=Token`, `nodejs_compat`. The Worker build is `npm run build:worker`, which is **`tsc --noEmit`** — type-check only, since Wrangler bundles from source. Changing `build:worker` to emit would break the Worker build.
+
+## Commands
+
+```bash
+npm ci
+npm run build          # tsc -> dist/
+npm test               # build + full vitest run
+npm run test:unit      # fast subset: helpers, client, logger, rate_limit, http_guards
+npm run test:live      # hits the real VRM API — needs credentials, not part of CI
+npm run inspect        # @modelcontextprotocol/inspector
+```
+
+**372 tests across 15 files, all passing** (verified 2026-07-28). The README's "208 tests" badge is stale.
+
+## Runtime gotcha
+
+Node on this machine resolves to Homebrew's **26.5.0**, which shadows the 24.18.0 LTS in `~/.local/share/node/bin`. CI runs a Node matrix. If you see a toolchain oddity locally, check `node --version` first:
+
+```bash
+export PATH="$HOME/.local/share/node/bin:$PATH"
+```
+
+## Dependencies are deliberately tiny
+
+Runtime deps are only `@modelcontextprotocol/sdk` and `zod`. Keep it that way — this ships as an npm package *and* runs in a Worker, where bundle size and `nodejs_compat` limits both matter.
+
+## Destructive tools are gated
+
+`src/tools/helpers.ts` refuses any destructive operation unless called with `{ confirm: true }`:
+
+```
+Refusing to execute destructive operation "<name>" without { confirm: true }
+```
+
+Trusted automated callers may bypass with the header `x-vrm-skip-confirms: 1`. **Do not remove or weaken this gate**, and any new destructive tool must route through the same helper rather than reimplementing the check.
+
+## CI
+
+`.github/workflows/ci.yml` — `npm ci`, `npm run build`, `vitest run` (offline; no VRM network calls), plus a separate `static` job.
+
+It includes a **token-leak sentinel** that fails the build if `src/` contains a JWT-shaped literal (`eyJ…`) or a `console.log(...token...)`. If CI fails with *"Potential token literal or token log in source"*, that is the sentinel — remove the credential, don't weaken the grep.
+
+`tests/live.test.ts` is excluded from CI because it spawns the server and needs real credentials.
+
+## Layout
+
+```
+src/
+  index.ts        stdio entry
+  worker.ts       Cloudflare Worker entry
+  server.ts       MCP server wiring
+  http_guards.ts  request guards
+  rate_limit.ts   rate limiting
+  logger.ts
+  vrm/            client.ts, types.ts — VRM API client
+  tools/          52 tools: installations, reads, site_writes, alarms, users,
+                  widgets, tags, admin, admin_ops, auth, accesstokens,
+                  capabilities, data_attributes, custom_widget, output_schemas,
+                  user_ops, helpers
+tests/            15 files incl. fuzz, pagination, regressions, worker, http_guards
+evals/            evaluation harness
+```
+
+## Related
+
+`~/.claude/docs/energy.md` documents the physical system these tools read: 41.62 kWp, 3× MultiPlus-II (one per phase, not paralleled), Ekrano GX, and the constraint that **grid export is not permitted by the DSO** — relevant when interpreting or writing tools around energy flow.
