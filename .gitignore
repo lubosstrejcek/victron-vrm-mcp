@@ -15,7 +15,14 @@ coverage/
 *.swo
 
 # Agent / tooling workspaces
-.claude/
+# Share team config (settings, agents, skills, rules, commands) so a fresh clone
+# is workable; ignore only machine-local and runtime artefacts.
+.claude/settings.local.json
+.claude/projects/
+.claude/cache/
+.claude/plans/
+.claude/scheduled_tasks.lock
+CLAUDE.local.md
 .aider*
 .cursor/
 
