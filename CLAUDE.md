@@ -28,7 +28,7 @@ npm run test:live      # hits the real VRM API — needs credentials, not part o
 npm run inspect        # @modelcontextprotocol/inspector
 ```
 
-**372 tests across 15 files, all passing** (verified 2026-07-28). The README's "208 tests" badge is stale.
+**497 tests across 16 files, all passing** (verified 2026-08-14). The README's "208 tests" badge is stale. `tests/handlers.test.ts` runs every tool handler in-process against a stubbed VRM (fixtures from `tests/fixtures/`); the shared tool catalog lives in `tests/tool_catalog.ts` — update it when adding or removing a tool.
 
 ## Runtime gotcha
 

@@ -1,6 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import {
+  assertSiteAllowed,
   formatVrmError,
+  getAllowedSitesConfig,
+  parseAllowedSites,
+  reloadAllowedSites,
   requireConfirm,
   sitePath,
   userPath,
@@ -163,5 +167,89 @@ describe('formatVrmError — error-body redaction', () => {
   it('handles non-Error inputs', () => {
     const r = formatVrmError(new Error('boom'));
     expect(r.content[0].text).toBe('boom');
+  });
+
+  it('redacts plain-string error bodies (non-JSON upstream responses) and truncates them', () => {
+    const err = new VrmApiError(502, '<html>Bad gateway</html>' + 'x'.repeat(1000));
+    const r = formatVrmError(err);
+    expect(r.content[0].text).toMatch(/^VRM API error 502: <html>Bad gateway<\/html>/);
+    expect(r.content[0].text.length).toBeLessThan(400);
+  });
+
+  it('falls back to "(no detail)" for bodies with no usable fields', () => {
+    const err = new VrmApiError(500, { unexpected: 'shape' });
+    const r = formatVrmError(err);
+    expect(r.content[0].text).toMatch(/\(no detail\)/);
+  });
+
+  it('honors a caller-supplied hint over the default 403 hint', () => {
+    const err = new VrmApiError(403, { errors: 'nope', error_code: 'forbidden' });
+    const r = formatVrmError(err, { hint: ' custom-hint-text' });
+    expect(r.content[0].text).toMatch(/custom-hint-text/);
+    expect(r.content[0].text).not.toMatch(/vrm_capabilities/);
+  });
+});
+
+describe('VRM_ALLOWED_SITES allowlist', () => {
+  const originalEnv = process.env['VRM_ALLOWED_SITES'];
+
+  afterEach(() => {
+    if (originalEnv === undefined) {
+      delete process.env['VRM_ALLOWED_SITES'];
+    } else {
+      process.env['VRM_ALLOWED_SITES'] = originalEnv;
+    }
+    reloadAllowedSites();
+  });
+
+  it('parseAllowedSites returns null for unset or empty input', () => {
+    expect(parseAllowedSites(undefined)).toBeNull();
+    expect(parseAllowedSites('')).toBeNull();
+  });
+
+  it('parseAllowedSites parses a comma-separated list, tolerating whitespace', () => {
+    const set = parseAllowedSites(' 151734 , 200001 ');
+    expect(set).not.toBeNull();
+    expect([...set!].sort()).toEqual([151734, 200001]);
+  });
+
+  it('parseAllowedSites drops garbage, zero, and negative entries', () => {
+    const set = parseAllowedSites('abc,-5,0,42,,3.9');
+    // parseInt('3.9') === 3 — documented tolerance; the guard is the > 0 filter.
+    expect(set).not.toBeNull();
+    expect(set!.has(42)).toBe(true);
+    expect(set!.has(-5)).toBe(false);
+    expect(set!.has(0)).toBe(false);
+  });
+
+  it('parseAllowedSites returns null (not an empty allow-nothing set) for all-garbage input', () => {
+    expect(parseAllowedSites('abc,,-1')).toBeNull();
+  });
+
+  it('assertSiteAllowed is a no-op when no allowlist is configured', () => {
+    delete process.env['VRM_ALLOWED_SITES'];
+    reloadAllowedSites();
+    expect(() => assertSiteAllowed(999999)).not.toThrow();
+    expect(getAllowedSitesConfig()).toEqual({ configured: false, size: 0 });
+  });
+
+  it('assertSiteAllowed permits listed sites and refuses unlisted ones', () => {
+    process.env['VRM_ALLOWED_SITES'] = '151734,200001';
+    reloadAllowedSites();
+    expect(() => assertSiteAllowed(151734)).not.toThrow();
+    expect(() => assertSiteAllowed(200001)).not.toThrow();
+    expect(() => assertSiteAllowed(7)).toThrow(/not on the VRM_ALLOWED_SITES allowlist/);
+    expect(getAllowedSitesConfig()).toEqual({ configured: true, size: 2 });
+  });
+
+  it('caches the parsed allowlist until reloadAllowedSites is called', () => {
+    process.env['VRM_ALLOWED_SITES'] = '1';
+    reloadAllowedSites();
+    expect(() => assertSiteAllowed(2)).toThrow();
+    // Env changes without a reload must NOT take effect (prod reads it once).
+    process.env['VRM_ALLOWED_SITES'] = '2';
+    expect(() => assertSiteAllowed(2)).toThrow();
+    reloadAllowedSites();
+    expect(() => assertSiteAllowed(2)).not.toThrow();
   });
 });

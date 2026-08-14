@@ -34,8 +34,7 @@ export const IDEMPOTENT_WRITE_ANNOTATIONS = {
   openWorldHint: true,
 } as const;
 
-function parseAllowedSites(): Set<number> | null {
-  const raw = process.env['VRM_ALLOWED_SITES'];
+export function parseAllowedSites(raw: string | undefined): Set<number> | null {
   if (!raw) {
     return null;
   }
@@ -46,10 +45,24 @@ function parseAllowedSites(): Set<number> | null {
   return parsed.length > 0 ? new Set(parsed) : null;
 }
 
-const ALLOWED_SITES = parseAllowedSites();
+// Cached on first use; undefined = not yet read from the environment.
+let allowedSitesCache: Set<number> | null | undefined;
+
+function allowedSites(): Set<number> | null {
+  if (allowedSitesCache === undefined) {
+    allowedSitesCache = parseAllowedSites(process.env['VRM_ALLOWED_SITES']);
+  }
+  return allowedSitesCache;
+}
+
+/** Test hook: force a re-read of VRM_ALLOWED_SITES on next use. */
+export function reloadAllowedSites(): void {
+  allowedSitesCache = undefined;
+}
 
 export function assertSiteAllowed(idSite: number): void {
-  if (ALLOWED_SITES && !ALLOWED_SITES.has(idSite)) {
+  const allowed = allowedSites();
+  if (allowed && !allowed.has(idSite)) {
     throw new Error(
       `Site ${idSite} is not on the VRM_ALLOWED_SITES allowlist. Refusing to proceed.`,
     );
@@ -168,8 +181,9 @@ export function formatVrmError(error: unknown, opts?: { hint?: string }): Return
 }
 
 export function getAllowedSitesConfig(): { configured: boolean; size: number } {
+  const allowed = allowedSites();
   return {
-    configured: ALLOWED_SITES !== null,
-    size: ALLOWED_SITES?.size ?? 0,
+    configured: allowed !== null,
+    size: allowed?.size ?? 0,
   };
 }
