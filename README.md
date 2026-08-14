@@ -1,8 +1,8 @@
 # Victron VRM MCP — MCP Server
 
-MCP server for Victron Energy's [VRM cloud API](https://vrmapi.victronenergy.com/v2/docs). Exposes 52 VRM tools over Streamable HTTP — ready for the [Anthropic MCP Connector API](https://platform.claude.com/docs/en/agents-and-tools/mcp-connector) and any HTTP-capable MCP client.
+MCP server for Victron Energy's [VRM cloud API](https://vrmapi.victronenergy.com/v2/docs). Exposes 53 VRM tools over Streamable HTTP — ready for the [Anthropic MCP Connector API](https://platform.claude.com/docs/en/agents-and-tools/mcp-connector) and any HTTP-capable MCP client.
 
-> 52 tools | Streamable HTTP | Security-first | 208 tests | MCP Connector compatible
+> 53 tools | Streamable HTTP | Security-first | 506 tests | MCP Connector compatible
 
 ---
 
@@ -128,7 +128,7 @@ Call `vrm_list_installations` first — it returns every site the token can acce
 
 ## Tools
 
-52 tools covering 88 VRM operations (52 direct + 35+ widget endpoints via the generic `vrm_widget` dispatcher). Every destructive tool is `confirm: true` gated; every tool declares `inputSchema`, `outputSchema`, and MCP annotations.
+53 tools covering 88+ VRM operations (53 direct + 35+ widget endpoints via the generic `vrm_widget` dispatcher). Every destructive tool is `confirm: true` gated; every tool declares `inputSchema`, `outputSchema`, and MCP annotations.
 
 <details>
 <summary><strong>Discovery & Lookup (4 tools)</strong></summary>
@@ -383,7 +383,7 @@ Logs go to **stderr** as one-line JSON (the Streamable HTTP transport doesn't ca
 
 ## Testing
 
-208 tests across 8 files, runs in ~2 seconds:
+506 tests across 17 files, runs in ~25 seconds (offline — no VRM network calls):
 
 ```bash
 npm test           # build + run all tests
@@ -392,16 +392,17 @@ npm run test:unit  # unit tests only (no server spawn)
 
 | File | Coverage |
 |------|----------|
+| `tests/handlers.test.ts` | Every tool handler executed in-process against a stubbed VRM: request construction (method/path/query/body), markdown + `structuredContent` shaping, destructive gate verified at the VRM boundary, error redaction, `VRM_ALLOWED_SITES` enforcement |
 | `tests/helpers.test.ts` | zod schemas, `sitePath`/`userPath` encoding, `requireConfirm` + skip bypass, `resolveAuth` token guards, `formatVrmError` redaction |
 | `tests/client.test.ts` | Token-length guard, scheme forwarding, array query encoding, host pin, 4xx → `VrmApiError`, 429 Retry-After, binary download round-trip |
 | `tests/logger.test.ts` | Auto-redaction of `token`/`authorization` keys (case-insensitive) |
 | `tests/http.test.ts` | End-to-end HTTP: 404/405/401/403/406/415/400/200, Origin validation, confirm gate, skip header |
-| `tests/tools.coverage.test.ts` | Every one of the 52 tools has correct shape + annotations; every destructive tool refuses without confirm AND passes with skip header |
+| `tests/tools.coverage.test.ts` | Every one of the 53 tools has correct shape + annotations; every destructive tool refuses without confirm AND passes with skip header |
 | `tests/outputSchema.test.ts` | Every tool declares `outputSchema` with ≥1 property; description hygiene (length, endpoint mention, no injection markers, destructive tools name the hazard) |
 | `tests/regressions.test.ts` | Specific bug locks: skip-confirms bypass, firmwares required params, binary download, path traversal rejection, widget-name regex, limit bounds |
 | `tests/fuzz.test.ts` | Malformed JSON, 1 MB body, unicode/control-char/XSS/SQL-injection strings, array length limits, content-type edge cases, token-leak sentinel |
 
-CI: `.github/workflows/ci.yml` runs the full suite on Node 18 / 20 / 22 for every push + PR, plus a token-leak sentinel grep and `npm audit`.
+CI: `.github/workflows/ci.yml` runs the full suite with coverage thresholds (80% lines / 72% branches on `src/`) on Node 20 / 22 / 24 for every push + PR, plus a token-leak sentinel grep and `npm audit`.
 
 ### Evals
 
@@ -412,7 +413,7 @@ CI: `.github/workflows/ci.yml` runs the full suite on Node 18 / 20 / 22 for ever
 ## Roadmap
 
 Shipped:
-- [x] 52 tools covering 88 VRM operations
+- [x] 53 tools covering 88+ VRM operations
 - [x] Streamable HTTP transport + MCP Connector API support
 - [x] Security hardening (Origin/Accept/Content-Type/Protocol-Version, token redaction, confirm gates, site allowlist, base-URL pin)
 - [x] `outputSchema` on every tool

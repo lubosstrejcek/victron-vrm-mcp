@@ -18,6 +18,17 @@ describe('logger — JSON to stderr with token redaction', () => {
     vi.restoreAllMocks();
   });
 
+  it('warn and error stamp their level', () => {
+    stub();
+    log.warn('careful');
+    log.error('broken');
+    const entries = writes.map((w) => JSON.parse(w) as { level: string; msg: string });
+    expect(entries).toMatchObject([
+      { level: 'warn', msg: 'careful' },
+      { level: 'error', msg: 'broken' },
+    ]);
+  });
+
   it('emits one JSON line per call', () => {
     stub();
     log.info('hello');

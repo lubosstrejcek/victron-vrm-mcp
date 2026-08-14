@@ -4,7 +4,7 @@ Guidance for Claude Code working in this repository.
 
 ## What this is
 
-MCP server for Victron Energy's **VRM cloud API**, exposing 52 tools over **Streamable HTTP**. v0.4.0.
+MCP server for Victron Energy's **VRM cloud API**, exposing 53 tools over **Streamable HTTP**. v0.4.0.
 
 It is the **cloud half of a pair** — the local/LAN half is [`victron-tcp`](https://github.com/lubosstrejcek/victron-tcp) (stdio, Modbus TCP + MQTT, works offline, ~50 ms). This one needs internet, works away from the house, and inherits VRM's **~15 min sampling latency**. Choose accordingly before adding a tool here: anything needing real-time data belongs in `victron-tcp`.
 
@@ -28,7 +28,7 @@ npm run test:live      # hits the real VRM API — needs credentials, not part o
 npm run inspect        # @modelcontextprotocol/inspector
 ```
 
-**372 tests across 15 files, all passing** (verified 2026-07-28). The README's "208 tests" badge is stale.
+**506 tests across 17 files, all passing** (verified 2026-08-14). `tests/handlers.test.ts` runs every tool handler in-process against a stubbed VRM (fixtures from `tests/fixtures/`); the shared tool catalog lives in `tests/tool_catalog.ts` — update it when adding or removing a tool. CI enforces coverage thresholds on `src/` (80% lines / 72% branches) via `npm run test:coverage`.
 
 ## Runtime gotcha
 
@@ -71,11 +71,11 @@ src/
   rate_limit.ts   rate limiting
   logger.ts
   vrm/            client.ts, types.ts — VRM API client
-  tools/          52 tools: installations, reads, site_writes, alarms, users,
+  tools/          53 tools: installations, reads, site_writes, alarms, users,
                   widgets, tags, admin, admin_ops, auth, accesstokens,
                   capabilities, data_attributes, custom_widget, output_schemas,
                   user_ops, helpers
-tests/            15 files incl. fuzz, pagination, regressions, worker, http_guards
+tests/            17 files incl. handlers, fuzz, pagination, regressions, worker
 evals/            evaluation harness
 ```
 

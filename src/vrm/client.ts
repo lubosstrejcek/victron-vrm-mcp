@@ -97,11 +97,15 @@ async function vrmRequest<T>(
   const response = await fetch(url, { method, headers, body });
 
   if (!response.ok) {
+    // Read the body once as text, then attempt JSON — calling .json() first
+    // consumes the body, so a .text() fallback after a parse failure throws
+    // "Body is unusable" and loses the real status.
+    const rawBody = await response.text().catch(() => '');
     let errBody: unknown;
     try {
-      errBody = await response.json();
+      errBody = JSON.parse(rawBody);
     } catch {
-      errBody = await response.text();
+      errBody = rawBody;
     }
 
     let retryAfter: number | undefined;
@@ -155,11 +159,12 @@ async function vrmDownload(
   }
   const response = await fetch(url, { method: 'POST', headers, body: reqBody });
   if (!response.ok) {
+    const rawBody = await response.text().catch(() => '');
     let errBody: unknown;
     try {
-      errBody = await response.json();
+      errBody = JSON.parse(rawBody);
     } catch {
-      errBody = await response.text();
+      errBody = rawBody;
     }
     const retryAfter =
       response.status === 429 ? parseInt(response.headers.get('retry-after') ?? '', 10) : undefined;

@@ -31,11 +31,12 @@ async function anonymousVrmFetch<T>(path: string, init?: { method?: string; body
   }
   const response = await fetch(url, { method: init?.method ?? 'GET', headers, body });
   if (!response.ok) {
+    const rawBody = await response.text().catch(() => '');
     let errBody: unknown;
     try {
-      errBody = await response.json();
+      errBody = JSON.parse(rawBody);
     } catch {
-      errBody = await response.text();
+      errBody = rawBody;
     }
     const retryAfter = response.status === 429 ? parseInt(response.headers.get('retry-after') ?? '', 10) : undefined;
     throw new VrmApiError(response.status, errBody, Number.isFinite(retryAfter) ? retryAfter : undefined);

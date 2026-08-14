@@ -35,8 +35,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Vitest (offline — no VRM network calls)
-        run: npx vitest run --reporter=default
+      - name: Vitest with coverage thresholds (offline — no VRM network calls)
+        run: npm run test:coverage -- --reporter=default
 
       - name: Token-leak sentinel
         run: |
