@@ -24,11 +24,13 @@ npm ci
 npm run build          # tsc -> dist/
 npm test               # build + full vitest run
 npm run test:unit      # fast subset: helpers, client, logger, rate_limit, http_guards
-npm run test:live      # hits the real VRM API — needs credentials, not part of CI
+npm run test:live      # 91 live tests against VRM's demo tenant — network, not part of CI
 npm run inspect        # @modelcontextprotocol/inspector
 ```
 
-**506 tests across 17 files, all passing** (verified 2026-08-14). `tests/handlers.test.ts` runs every tool handler in-process against a stubbed VRM (fixtures from `tests/fixtures/`); the shared tool catalog lives in `tests/tool_catalog.ts` — update it when adding or removing a tool. CI enforces coverage thresholds on `src/` (80% lines / 72% branches) via `npm run test:coverage`.
+**415 offline tests across 16 files, plus 91 live tests, all passing** (verified 2026-08-14). `tests/handlers.test.ts` runs every tool handler in-process against a stubbed VRM (fixtures from `tests/fixtures/`); the shared tool catalog lives in `tests/tool_catalog.ts` — update it when adding or removing a tool. CI enforces coverage thresholds on `src/` (80% lines / 72% branches) via `npm run test:coverage`.
+
+**The default run is offline by construction.** `vitest.config.ts` excludes `tests/live.test.ts`, and `npm run test:live` reaches it through its own `vitest.live.config.ts`. A CLI `--exclude` cannot express this — vitest *appends* that flag to the config's exclude list rather than replacing it, so `vitest run --exclude … tests/live.test.ts` silently runs zero tests.
 
 ## Runtime gotcha
 
@@ -54,11 +56,11 @@ Trusted automated callers may bypass with the header `x-vrm-skip-confirms: 1`. *
 
 ## CI
 
-`.github/workflows/ci.yml` — `npm ci`, `npm run build`, `vitest run` (offline; no VRM network calls), plus a separate `static` job.
+`.github/workflows/ci.yml` — `npm ci`, `npm run build`, `npm run test:coverage` (offline; no VRM network calls), on a Node 22 / 24 matrix, plus a separate `static` job on 24.
 
 It includes a **token-leak sentinel** that fails the build if `src/` contains a JWT-shaped literal (`eyJ…`) or a `console.log(...token...)`. If CI fails with *"Potential token literal or token log in source"*, that is the sentinel — remove the credential, don't weaken the grep.
 
-`tests/live.test.ts` is excluded from CI because it spawns the server and needs real credentials.
+`tests/live.test.ts` is excluded from CI because it spawns the server and calls the real VRM API. It needs no credentials — `beforeAll` issues an anonymous demo token — which is exactly why it went unnoticed running in CI until 2026-08-14: it passed, so nothing failed to reveal that every build depended on `vrmapi.victronenergy.com` being reachable.
 
 ## Layout
 
@@ -75,7 +77,8 @@ src/
                   widgets, tags, admin, admin_ops, auth, accesstokens,
                   capabilities, data_attributes, custom_widget, output_schemas,
                   user_ops, helpers
-tests/            17 files incl. handlers, fuzz, pagination, regressions, worker
+tests/            16 offline files incl. handlers, fuzz, pagination, regressions,
+                  worker — plus live.test.ts, run only via npm run test:live
 evals/            evaluation harness
 ```
 

@@ -3,6 +3,12 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
+    // tests/live.test.ts hits Victron's public demo tenant over the network
+    // (beforeAll calls /auth/loginAsDemo, with no skip guard). Keeping it out
+    // of the default run is what makes `npm test` and CI genuinely offline
+    // rather than quietly dependent on VRM being up; run it deliberately with
+    // `npm run test:live`.
+    exclude: ['**/node_modules/**', '**/dist/**', 'tests/live.test.ts'],
     testTimeout: 15_000,
     globals: false,
     coverage: {

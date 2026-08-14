@@ -2,7 +2,7 @@
 
 MCP server for Victron Energy's [VRM cloud API](https://vrmapi.victronenergy.com/v2/docs). Exposes 53 VRM tools over Streamable HTTP — ready for the [Anthropic MCP Connector API](https://platform.claude.com/docs/en/agents-and-tools/mcp-connector) and any HTTP-capable MCP client.
 
-> 53 tools | Streamable HTTP | Security-first | 506 tests | MCP Connector compatible
+> 53 tools | Streamable HTTP | Security-first | 506 tests (415 offline + 91 live) | MCP Connector compatible
 
 ---
 
@@ -383,12 +383,15 @@ Logs go to **stderr** as one-line JSON (the Streamable HTTP transport doesn't ca
 
 ## Testing
 
-506 tests across 17 files, runs in ~25 seconds (offline — no VRM network calls):
+415 tests across 16 files, runs in ~12 seconds — genuinely offline, no VRM network calls:
 
 ```bash
-npm test           # build + run all tests
+npm test           # build + the offline suite
 npm run test:unit  # unit tests only (no server spawn)
+npm run test:live  # 91 extra tests against VRM's public demo tenant (needs network)
 ```
+
+`tests/live.test.ts` is deliberately excluded from `vitest.config.ts` and reached only through its own `vitest.live.config.ts`, so `npm test` and CI never depend on `vrmapi.victronenergy.com` being up. It needs no credentials — it issues an anonymous demo token itself.
 
 | File | Coverage |
 |------|----------|
@@ -417,7 +420,7 @@ Shipped:
 - [x] Streamable HTTP transport + MCP Connector API support
 - [x] Security hardening (Origin/Accept/Content-Type/Protocol-Version, token redaction, confirm gates, site allowlist, base-URL pin)
 - [x] `outputSchema` on every tool
-- [x] 506 tests + CI on Node 22/24
+- [x] 506 tests (415 offline + 91 live) + CI on Node 22/24
 - [x] 12 scenario evals
 
 Planned:
