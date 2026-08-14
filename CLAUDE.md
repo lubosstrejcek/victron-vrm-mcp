@@ -4,7 +4,9 @@ Guidance for Claude Code working in this repository.
 
 ## What this is
 
-MCP server for Victron Energy's **VRM cloud API**, exposing 53 tools over **Streamable HTTP**. v0.4.0.
+MCP server for Victron Energy's **VRM cloud API**, exposing 53 tools over **Streamable HTTP**. v0.5.0.
+
+⚠️ **npm skips 0.4.0.** v0.4.0 was tagged and GitHub-released on 2026-05-14 but never published to the registry, so npm goes 0.3.0 → 0.5.0. Check `npm view victron-vrm-mcp version` against `git tag` before assuming a tag means a release.
 
 It is the **cloud half of a pair** — the local/LAN half is [`victron-tcp`](https://github.com/lubosstrejcek/victron-tcp) (stdio, Modbus TCP + MQTT, works offline, ~50 ms). This one needs internet, works away from the house, and inherits VRM's **~15 min sampling latency**. Choose accordingly before adding a tool here: anything needing real-time data belongs in `victron-tcp`.
 
