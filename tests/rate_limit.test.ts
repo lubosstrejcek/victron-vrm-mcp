@@ -73,6 +73,27 @@ describe('createRateLimiter — token-bucket per key', () => {
     expect(rl.consume('k').allowed).toBe(false);
   });
 
+  it('evicts idle buckets once the map exceeds 1024 entries', () => {
+    let t = 0;
+    const limiter = createRateLimiter({ capacity: 5, refillPerSecond: 1, cleanupAfterMs: 1000, now: () => t });
+
+    for (let i = 0; i < 1030; i++) {
+      limiter.consume(`stale-${i}`);
+    }
+    expect(limiter.size()).toBe(1030);
+
+    // Under the eviction horizon: cleanup runs but nothing is old enough.
+    t = 500;
+    limiter.consume('fresh-1');
+    expect(limiter.size()).toBe(1031);
+
+    // Past the horizon: everything last used at t=0 is dropped.
+    t = 2000;
+    limiter.consume('fresh-2');
+    expect(limiter.size()).toBeLessThanOrEqual(3);
+    expect(limiter.size()).toBeGreaterThanOrEqual(1);
+  });
+
   it('size() reports active bucket count', () => {
     const rl = createRateLimiter();
     expect(rl.size()).toBe(0);

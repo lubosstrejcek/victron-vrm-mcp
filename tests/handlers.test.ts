@@ -298,6 +298,42 @@ describe('Handlers shape real VRM payloads (fixtures)', () => {
     expect(text).toMatch(/Available data attributes\*\*: 3/);
   });
 
+  it('vrm_get_site_users labels access levels and lists each user', async () => {
+    vrmRoute = () => ({
+      success: true,
+      users: [
+        { idUser: 1, name: 'Own Er', email: 'own@e.r', accessLevel: 1 },
+        { idUser: 2, name: 'Mon Itor', email: 'mon@it.or', accessLevel: 0 },
+        { idUser: 3, name: 'Tech Nician', email: 'tech@nici.an', accessLevel: 2 },
+        { idUser: 4, name: 'Mys Tery', email: 'mys@ter.y', accessLevel: 9 },
+      ],
+      invites: [{}],
+    });
+    const { result, text } = await callTool('vrm_get_site_users', { idSite: 1 });
+    expect(result.isError).toBeFalsy();
+    expect(text).toMatch(/Direct users\*\*: 4/);
+    expect(text).toMatch(/Pending invites\*\*: 1/);
+    expect(text).toMatch(/Own Er.*full control/);
+    expect(text).toMatch(/Mon Itor.*monitoring/);
+    expect(text).toMatch(/Tech Nician.*technician/);
+    expect(text).toMatch(/Mys Tery.*unknown\(9\)/);
+  });
+
+  it('vrm_find_by_data_attributes forwards paging params and truncates long match lists', async () => {
+    const records = Array.from({ length: 60 }, (_, i) => ({ idSite: i + 1, description: i === 0 ? undefined : `Site ${i + 1}` }));
+    vrmRoute = () => ({ success: true, records, attributes: [{ idDataAttribute: 1, code: 'bs' }] });
+    const { result, text } = await callTool('vrm_find_by_data_attributes', { query: 'bs>=50', page: 2, count: 60 });
+    expect(result.isError).toBeFalsy();
+    const q = vrmCalls[0].url.searchParams;
+    expect(vrmCalls[0].url.pathname).toBe('/v2/installation-data-attributes');
+    expect(q.get('query')).toBe('bs>=50');
+    expect(q.get('page')).toBe('2');
+    expect(q.get('count')).toBe('60');
+    expect(text).toMatch(/Matching installations\*\*: 60/);
+    expect(text).toMatch(/\(no name\)/);
+    expect(text).toMatch(/… and 10 more/);
+  });
+
   it('vrm_capabilities reports isAdmin=false when the admin probe 403s', async () => {
     vrmRoute = (call) =>
       call.url.pathname.endsWith('/admin/devices')

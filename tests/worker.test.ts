@@ -72,6 +72,30 @@ describe('Worker fetch handler — security guards', () => {
     expect(res.status).toBe(204);
   });
 
+  it.each([['PUT'], ['PATCH'], ['HEAD']])('%s /mcp → 405', async (method) => {
+    const res = await worker.fetch(new Request('http://example.com/mcp', { method }), env);
+    expect(res.status).toBe(405);
+  });
+
+  it('a request body stream that errors is handled by the transport as 400, not a crash', async () => {
+    const brokenBody = new ReadableStream({
+      start(controller) {
+        controller.error(new Error('boom mid-stream'));
+      },
+    });
+    const res = await worker.fetch(
+      new Request('http://example.com/mcp', {
+        method: 'POST',
+        headers: mcpHeaders(),
+        body: brokenBody,
+        // @ts-expect-error Node requires duplex for stream bodies; not in the lib type yet.
+        duplex: 'half',
+      }),
+      env,
+    );
+    expect(res.status).toBe(400);
+  });
+
   it('POST without Authorization → 401', async () => {
     const res = await worker.fetch(
       new Request('http://example.com/mcp', fetchOptions({ 'content-type': 'application/json', accept: 'application/json, text/event-stream' }, initBody)),
