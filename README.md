@@ -120,7 +120,7 @@ Call `vrm_list_installations` first — it returns every site the token can acce
 
 ### Requirements
 
-- **Node.js 18+**
+- **Node.js 22.11+** (the two supported LTS lines, 22 and 24)
 - **A VRM personal access token** (or a demo-login Bearer for testing)
 - **Public HTTPS** if you want the MCP Connector API to reach it
 
@@ -402,7 +402,7 @@ npm run test:unit  # unit tests only (no server spawn)
 | `tests/regressions.test.ts` | Specific bug locks: skip-confirms bypass, firmwares required params, binary download, path traversal rejection, widget-name regex, limit bounds |
 | `tests/fuzz.test.ts` | Malformed JSON, 1 MB body, unicode/control-char/XSS/SQL-injection strings, array length limits, content-type edge cases, token-leak sentinel |
 
-CI: `.github/workflows/ci.yml` runs the full suite with coverage thresholds (80% lines / 72% branches on `src/`) on Node 20 / 22 / 24 for every push + PR, plus a token-leak sentinel grep and `npm audit`.
+CI: `.github/workflows/ci.yml` runs the full suite with coverage thresholds (80% lines / 72% branches on `src/`) on Node 22 / 24 — the two supported LTS lines — for every push + PR, plus a token-leak sentinel grep and `npm audit`.
 
 ### Evals
 
@@ -417,7 +417,7 @@ Shipped:
 - [x] Streamable HTTP transport + MCP Connector API support
 - [x] Security hardening (Origin/Accept/Content-Type/Protocol-Version, token redaction, confirm gates, site allowlist, base-URL pin)
 - [x] `outputSchema` on every tool
-- [x] 208 tests + CI on Node 18/20/22
+- [x] 506 tests + CI on Node 22/24
 - [x] 12 scenario evals
 
 Planned:

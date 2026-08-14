@@ -43,7 +43,7 @@
   "homepage": "https://github.com/lubosstrejcek/victron-vrm-mcp",
   "author": "Lubos Strejcek",
   "engines": {
-    "node": ">=20.12.0"
+    "node": ">=22.11.0"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.28.0",

@@ -32,7 +32,7 @@ npm run inspect        # @modelcontextprotocol/inspector
 
 ## Runtime gotcha
 
-Node on this machine resolves to Homebrew's **26.5.0**, which shadows the 24.18.0 LTS in `~/.local/share/node/bin`. CI runs a Node matrix. If you see a toolchain oddity locally, check `node --version` first:
+Node on this machine resolves to Homebrew's **26.5.0**, which shadows the 24.18.0 LTS in `~/.local/share/node/bin`. CI runs a **22 / 24 matrix** — the two supported LTS lines — and `package.json` `engines` declares `>=22.11.0`. **Keep those two in step:** the matrix floor is what makes the `engines` floor a tested claim rather than an assertion. If you see a toolchain oddity locally, check `node --version` first:
 
 ```bash
 export PATH="$HOME/.local/share/node/bin:$PATH"
