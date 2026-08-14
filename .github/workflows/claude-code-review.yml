@@ -12,11 +12,13 @@ on:
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    # Skip bot-authored PRs. claude-code-action refuses non-human actors outright
+    # ("Workflow initiated by non-human actor: dependabot (type: Bot)"), so every
+    # Dependabot PR would otherwise carry a permanently red claude-review check.
+    # allowed_bots would not rescue it either: GitHub withholds repo secrets from
+    # Dependabot-triggered runs, so CLAUDE_CODE_OAUTH_TOKEN arrives empty. Lockfile
+    # bumps do not need an LLM review anyway.
+    if: github.event.pull_request.user.type != 'Bot'
 
     runs-on: ubuntu-latest
     permissions:
